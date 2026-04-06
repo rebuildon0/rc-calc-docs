@@ -1,0 +1,888 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RC部材 引抜き+曲げ 断面算定シート 説明書</title>
+<script>
+MathJax = {
+  tex: { inlineMath: [['$','$']], displayMath: [['$$','$$']] },
+  svg: { fontCache: 'global' }
+};
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js" async></script>
+<style>
+:root {
+  --bg: #fafafa; --text: #1a1a1a; --accent: #1a5276;
+  --input-bg: #fffff0; --calc-bg: #e2efda; --trial-bg: #fce4d6;
+  --header-bg: #d9e1f2; --ok-bg: #daeef3; --ng-bg: #fde9d9;
+  --border: #ccc; --code-bg: #f4f4f4;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: "Noto Sans JP", "Hiragino Kaku Gothic ProN", "Yu Gothic", sans-serif;
+  background: var(--bg); color: var(--text);
+  line-height: 1.8; max-width: 900px; margin: 0 auto; padding: 20px 30px 60px;
+}
+h1 { font-size: 1.6em; color: var(--accent); border-bottom: 3px solid var(--accent); padding-bottom: 8px; margin: 30px 0 16px; }
+h2 { font-size: 1.3em; color: var(--accent); border-left: 4px solid var(--accent); padding-left: 10px; margin: 36px 0 12px; }
+h3 { font-size: 1.1em; margin: 20px 0 8px; }
+p { margin: 8px 0; }
+ul, ol { margin: 8px 0 8px 24px; }
+li { margin: 4px 0; }
+/* テーブル: スクロール対応 */
+.table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; margin: 12px 0; }
+table { border-collapse: collapse; width: 100%; font-size: 0.9em; min-width: 320px; }
+th, td { border: 1px solid var(--border); padding: 6px 10px; text-align: left; }
+th { background: var(--header-bg); font-weight: bold; text-align: center; }
+.cell-input { background: var(--input-bg); }
+.cell-calc { background: var(--calc-bg); }
+.cell-trial { background: var(--trial-bg); }
+.cell-ok { background: var(--ok-bg); color: #0000aa; font-weight: bold; }
+.cell-ng { background: var(--ng-bg); color: #cc0000; font-weight: bold; }
+.note { background: #fff3cd; border-left: 4px solid #ffc107; padding: 10px 14px; margin: 12px 0; font-size: 0.92em; }
+.important { background: #f8d7da; border-left: 4px solid #dc3545; padding: 10px 14px; margin: 12px 0; font-size: 0.92em; }
+.tip { background: #d1ecf1; border-left: 4px solid #17a2b8; padding: 10px 14px; margin: 12px 0; font-size: 0.92em; }
+code { background: var(--code-bg); padding: 2px 5px; border-radius: 3px; font-family: "Consolas", monospace; font-size: 0.85em; word-break: break-all; }
+/* 図: レスポンシブSVG */
+.fig-container { text-align: center; margin: 20px 0; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+.fig-container figure { display: inline-block; min-width: 0; }
+.fig-container svg { max-width: 100%; height: auto; }
+.fig-container figcaption { font-size: 0.85em; color: #555; margin-top: 6px; }
+/* 数式ボックス */
+.formula-box { background: #f0f4ff; border: 1px solid #b0c4de; border-radius: 6px; padding: 16px 20px; margin: 14px 0; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+.formula-box .label { font-weight: bold; color: var(--accent); margin-bottom: 4px; }
+.step-header { background: var(--accent); color: #fff; padding: 6px 14px; border-radius: 4px; display: inline-block; margin: 16px 0 8px; font-weight: bold; }
+.excel-steps { background: #f0f8ff; border: 1px solid #87ceeb; border-radius: 6px; padding: 16px; margin: 14px 0; }
+.excel-steps ol { margin-left: 18px; }
+.toc { background: #f8f9fa; border: 1px solid #dee2e6; border-radius: 6px; padding: 16px 20px; margin: 20px 0; }
+.toc ul { list-style: none; margin: 0; padding: 0; }
+.toc li { margin: 3px 0; }
+.toc a { text-decoration: none; color: var(--accent); }
+.toc a:hover { text-decoration: underline; }
+.toc .toc-h2 { padding-left: 0; font-weight: bold; }
+.toc .toc-h3 { padding-left: 18px; font-size: 0.92em; }
+svg text { font-family: "Noto Sans JP", sans-serif; }
+
+/* ── スマホ対応 ── */
+@media screen and (max-width: 640px) {
+  body { padding: 12px 14px 40px; line-height: 1.7; }
+  h1 { font-size: 1.25em; margin: 20px 0 12px; }
+  h2 { font-size: 1.1em; margin: 24px 0 10px; }
+  h3 { font-size: 1.0em; }
+  p, li { font-size: 0.95em; }
+  table { font-size: 0.8em; }
+  th, td { padding: 5px 6px; }
+  .formula-box { padding: 12px 10px; }
+  .note, .important, .tip { padding: 8px 10px; font-size: 0.88em; }
+  .excel-steps { padding: 10px; }
+  .toc { padding: 12px 14px; }
+  .toc .toc-h3 { padding-left: 12px; }
+  ul, ol { margin-left: 16px; }
+  code { font-size: 0.8em; }
+  /* MathJax の数式がはみ出さないよう */
+  mjx-container { overflow-x: auto !important; max-width: 100% !important; }
+}
+</style>
+</head>
+<body>
+
+<h1>RC部材 引抜き+曲げ 断面算定シート 説明書</h1>
+
+<div class="toc">
+<strong>目次</strong>
+<ul>
+<li class="toc-h2"><a href="#what">1. このシートは何をするもの？</a></li>
+<li class="toc-h2"><a href="#basics">2. 前提知識のおさらい</a></li>
+<li class="toc-h3"><a href="#basics-assumption">2.1 RC断面の基本仮定（12条）</a></li>
+<li class="toc-h3"><a href="#basics-tension">2.2 引抜き＋曲げで何が変わるか</a></li>
+<li class="toc-h3"><a href="#basics-eccentricity">2.3 偏心距離と応力状態の分類</a></li>
+<li class="toc-h2"><a href="#sheet">3. シートの使い方</a></li>
+<li class="toc-h3"><a href="#sheet-colors">3.1 セルの色の意味</a></li>
+<li class="toc-h3"><a href="#sheet-inputs">3.2 入力項目</a></li>
+<li class="toc-h3"><a href="#sheet-goalsseek">3.3 Goal Seek の手順</a></li>
+<li class="toc-h2"><a href="#theory">4. 計算式の詳細解説</a></li>
+<li class="toc-h3"><a href="#theory-me">4.1 外力モーメント Me</a></li>
+<li class="toc-h3"><a href="#theory-sigma">4.2 応力度の算定</a></li>
+<li class="toc-h3"><a href="#theory-force">4.3 力の釣合い</a></li>
+<li class="toc-h3"><a href="#theory-moment">4.4 モーメントの釣合い</a></li>
+<li class="toc-h3"><a href="#theory-xn">4.5 なぜ xn を試行法で求めるか</a></li>
+<li class="toc-h2"><a href="#example">5. 計算例</a></li>
+<li class="toc-h2"><a href="#formulas">6. セルの数式一覧</a></li>
+<li class="toc-h2"><a href="#faq">7. よくある質問</a></li>
+<li class="toc-h2"><a href="#ref">8. 根拠条文</a></li>
+</ul>
+</div>
+
+<!-- ================================================================ -->
+<h2 id="what">1. このシートは何をするもの？</h2>
+
+<p>RC（鉄筋コンクリート）部材に<strong>引抜き力（軸方向の引張力）</strong>と<strong>曲げモーメント</strong>が同時に作用するときの<strong>断面算定（許容応力度設計）</strong>を行うExcelシートです。</p>
+
+<div class="fig-container">
+<figure>
+<svg width="520" height="220" viewBox="0 0 520 220">
+  <!-- 柱 -->
+  <rect x="60" y="40" width="100" height="160" fill="#ddd" stroke="#333" stroke-width="2"/>
+  <text x="110" y="130" text-anchor="middle" font-size="13" fill="#333">RC部材</text>
+  <!-- 鉄筋 -->
+  <circle cx="110" cy="120" r="6" fill="#c0392b"/>
+  <text x="128" y="124" font-size="10" fill="#c0392b">鉄筋</text>
+  <!-- 引抜力 -->
+  <line x1="110" y1="40" x2="110" y2="8" stroke="#e74c3c" stroke-width="3" marker-end="url(#arrowR)"/>
+  <text x="130" y="18" font-size="13" font-weight="bold" fill="#e74c3c">N（引抜力）</text>
+  <!-- 曲げ -->
+  <path d="M 60 120 Q 30 80, 60 40" fill="none" stroke="#2980b9" stroke-width="2.5" marker-end="url(#arrowB)"/>
+  <text x="8" y="75" font-size="13" font-weight="bold" fill="#2980b9">M</text>
+  <!-- 矢印マーカー -->
+  <defs>
+    <marker id="arrowR" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#e74c3c"/></marker>
+    <marker id="arrowB" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#2980b9"/></marker>
+    <marker id="arrowK" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#333"/></marker>
+    <marker id="arrowG" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#27ae60"/></marker>
+  </defs>
+  <!-- 右側の説明 -->
+  <rect x="260" y="30" width="240" height="170" rx="8" fill="#fff" stroke="#aaa"/>
+  <text x="280" y="55" font-size="12" font-weight="bold">こんな場面で使います：</text>
+  <text x="280" y="80" font-size="11">- 地震時の転倒でスラブが引っ張られる</text>
+  <text x="280" y="100" font-size="11">- 柱脚のアンカーボルトの引抜き</text>
+  <text x="280" y="120" font-size="11">- パラペットの風圧＋自重</text>
+  <text x="280" y="140" font-size="11">- 片持ちスラブの付け根</text>
+  <text x="280" y="170" font-size="11" fill="#888">普通の曲げ設計では対応できない</text>
+  <text x="280" y="188" font-size="11" fill="#888">→ RC規準14条「精算を行う」</text>
+</svg>
+<figcaption>図1: 引抜き力＋曲げモーメントが作用するRC部材</figcaption>
+</figure>
+</div>
+
+<p>通常のRC梁の設計では「曲げだけ」を考えれば済みますが、引抜き力が加わると話が変わります。RC規準には専用の検定式がなく、<strong>12条の基本仮定に立ち返って精算する</strong>必要があります。このシートは、その精算をExcelの数式で自動化します。</p>
+
+
+<!-- ================================================================ -->
+<h2 id="basics">2. 前提知識のおさらい</h2>
+
+<h3 id="basics-assumption">2.1 RC断面の基本仮定（RC規準 12条）</h3>
+
+<p>RC部材の応力度を計算するとき、以下の<strong>3つの仮定</strong>をおきます。これはRC造の設計の土台です。</p>
+
+<div class="table-wrap"><table>
+<tr><th style="width:40px">No.</th><th>仮定</th><th>何を言っているか</th></tr>
+<tr><td>1</td><td><strong>平面保持の仮定</strong></td><td>部材が曲がっても、断面は平面のまま。つまり<strong>ひずみは中立軸からの距離に比例</strong>する</td></tr>
+<tr><td>2</td><td><strong>コンクリートの引張を無視</strong></td><td>コンクリートはひび割れるので、引張側のコンクリートの抵抗力は 0 とする</td></tr>
+<tr><td>3</td><td><strong>ヤング係数比 $n$ を使う</strong></td><td>鉄筋とコンクリートは完全に付着。同じひずみ位置で鉄筋の応力度はコンクリートの $n$ 倍</td></tr>
+</table></div>
+
+<div class="fig-container">
+<figure>
+<svg width="700" height="280" viewBox="0 0 700 280">
+  <!-- 断面 -->
+  <text x="55" y="18" text-anchor="middle" font-size="12" font-weight="bold">断面</text>
+  <rect x="20" y="30" width="70" height="180" fill="#ddd" stroke="#333" stroke-width="2"/>
+  <text x="55" y="55" text-anchor="middle" font-size="10">圧縮縁</text>
+  <!-- 圧縮鉄筋 -->
+  <circle cx="40" cy="60" r="5" fill="#c0392b"/><circle cx="70" cy="60" r="5" fill="#c0392b"/>
+  <text x="95" y="64" font-size="9" fill="#c0392b">ac</text>
+  <!-- 中立軸 -->
+  <line x1="15" y1="110" x2="95" y2="110" stroke="#e67e22" stroke-width="2" stroke-dasharray="6,3"/>
+  <text x="95" y="108" font-size="9" fill="#e67e22">中立軸</text>
+  <!-- 引張鉄筋 -->
+  <circle cx="40" cy="170" r="5" fill="#c0392b"/><circle cx="70" cy="170" r="5" fill="#c0392b"/>
+  <text x="95" y="174" font-size="9" fill="#c0392b">at</text>
+  <!-- 寸法 -->
+  <line x1="8" y1="30" x2="8" y2="170" stroke="#555" stroke-width="1"/>
+  <text x="5" y="105" text-anchor="middle" font-size="9" fill="#555" transform="rotate(-90,5,105)">d</text>
+  <line x1="8" y1="30" x2="8" y2="60" stroke="#555" stroke-width="1"/>
+  <text x="5" y="47" text-anchor="middle" font-size="9" fill="#555" transform="rotate(-90,5,47)">dc</text>
+  <line x1="8" y1="30" x2="8" y2="110" stroke="#aaa" stroke-width="1"/>
+  <text x="4" y="73" text-anchor="middle" font-size="9" fill="#e67e22" transform="rotate(-90,4,73)">xn</text>
+
+  <!-- ひずみ分布 -->
+  <text x="215" y="18" text-anchor="middle" font-size="12" font-weight="bold">ひずみ分布</text>
+  <line x1="180" y1="30" x2="180" y2="210" stroke="#333" stroke-width="1"/>
+  <!-- 圧縮ひずみ（左側） -->
+  <polygon points="180,30 140,30 180,110" fill="rgba(52,152,219,0.15)" stroke="#3498db" stroke-width="1.5"/>
+  <text x="148" y="55" font-size="9" fill="#3498db">圧縮ε</text>
+  <!-- 引張ひずみ（右側） -->
+  <polygon points="180,110 180,210 240,210" fill="rgba(231,76,60,0.15)" stroke="#e74c3c" stroke-width="1.5"/>
+  <text x="218" y="195" font-size="9" fill="#e74c3c">引張ε</text>
+  <!-- 中立軸 -->
+  <line x1="130" y1="110" x2="250" y2="110" stroke="#e67e22" stroke-width="2" stroke-dasharray="6,3"/>
+  <text x="255" y="113" font-size="9" fill="#e67e22">ε=0</text>
+  <!-- 平面保持 -->
+  <line x1="140" y1="30" x2="240" y2="210" stroke="#8e44ad" stroke-width="2"/>
+  <text x="253" y="50" font-size="9" fill="#8e44ad">平面保持</text>
+  <text x="253" y="63" font-size="9" fill="#8e44ad">（直線）</text>
+
+  <!-- 応力分布 -->
+  <text x="410" y="18" text-anchor="middle" font-size="12" font-weight="bold">応力分布</text>
+  <line x1="380" y1="30" x2="380" y2="210" stroke="#333" stroke-width="1"/>
+  <!-- コンクリート圧縮（三角形） -->
+  <polygon points="380,30 340,30 380,110" fill="rgba(52,152,219,0.25)" stroke="#2980b9" stroke-width="2"/>
+  <text x="340" y="20" font-size="10" font-weight="bold" fill="#2980b9">σc'</text>
+  <!-- 圧縮鉄筋 -->
+  <line x1="380" y1="60" x2="355" y2="60" stroke="#c0392b" stroke-width="3"/>
+  <text x="333" y="64" font-size="9" fill="#c0392b">σc_s</text>
+  <!-- 引張鉄筋 -->
+  <line x1="380" y1="170" x2="430" y2="170" stroke="#e74c3c" stroke-width="3"/>
+  <text x="435" y="174" font-size="9" fill="#e74c3c">σt</text>
+  <!-- 中立軸 -->
+  <line x1="320" y1="110" x2="450" y2="110" stroke="#e67e22" stroke-width="2" stroke-dasharray="6,3"/>
+  <!-- 引張側コンクリート＝無視 -->
+  <text x="400" y="150" font-size="9" fill="#999">コンクリート</text>
+  <text x="400" y="163" font-size="9" fill="#999">引張 = 0</text>
+
+  <!-- 力の釣合い -->
+  <text x="600" y="18" text-anchor="middle" font-size="12" font-weight="bold">内力</text>
+  <line x1="580" y1="30" x2="580" y2="210" stroke="#333" stroke-width="1"/>
+  <!-- C -->
+  <line x1="580" y1="60" x2="545" y2="60" stroke="#2980b9" stroke-width="3" marker-start="url(#arrowB)"/>
+  <text x="528" y="55" font-size="11" font-weight="bold" fill="#2980b9">C</text>
+  <!-- Cc -->
+  <line x1="580" y1="60" x2="555" y2="60" stroke="#8e44ad" stroke-width="2"/>
+  <text x="528" y="72" font-size="9" fill="#8e44ad">Cc</text>
+  <!-- T -->
+  <line x1="580" y1="170" x2="625" y2="170" stroke="#e74c3c" stroke-width="3" marker-end="url(#arrowR)"/>
+  <text x="630" y="174" font-size="11" font-weight="bold" fill="#e74c3c">T</text>
+  <!-- N -->
+  <line x1="600" y1="120" x2="640" y2="120" stroke="#27ae60" stroke-width="2.5" marker-end="url(#arrowG)"/>
+  <text x="645" y="124" font-size="11" font-weight="bold" fill="#27ae60">N</text>
+  <!-- 釣合い式 -->
+  <text x="580" y="235" text-anchor="middle" font-size="10" fill="#333">N = T − Cc − C</text>
+</svg>
+<figcaption>図2: 断面の仮定 → ひずみ分布 → 応力分布 → 内力の流れ（大偏心引張の場合）</figcaption>
+</figure>
+</div>
+
+<div class="tip">
+<strong>ポイント：</strong>平面保持の仮定により、ひずみ（＝応力度）は中立軸からの距離に比例します。だから、<strong>中立軸位置 $x_n$ さえ決まれば、断面内の全ての応力度が決まる</strong>のです。
+</div>
+
+
+<h3 id="basics-tension">2.2 引抜き＋曲げで何が変わるか</h3>
+
+<p>普通の曲げ部材（引抜きなし）と比べて、何が変わるかを図で見てみましょう。</p>
+
+<div class="fig-container">
+<figure>
+<svg width="680" height="260" viewBox="0 0 680 260">
+  <!-- 曲げのみ -->
+  <text x="110" y="18" text-anchor="middle" font-size="12" font-weight="bold">曲げのみ</text>
+  <rect x="40" y="30" width="60" height="160" fill="#eee" stroke="#333" stroke-width="1.5"/>
+  <polygon points="100,30 130,30 100,100" fill="rgba(52,152,219,0.2)" stroke="#2980b9" stroke-width="1.5"/>
+  <line x1="30" y1="100" x2="140" y2="100" stroke="#e67e22" stroke-width="1.5" stroke-dasharray="4,3"/>
+  <text x="145" y="103" font-size="9" fill="#e67e22">中立軸</text>
+  <circle cx="70" cy="160" r="4" fill="#c0392b"/>
+  <text x="145" y="45" font-size="9" fill="#2980b9">圧縮域</text>
+  <text x="145" y="58" font-size="9" fill="#2980b9">（広い）</text>
+  <text x="145" y="155" font-size="9" fill="#e74c3c">引張鉄筋</text>
+  <text x="145" y="168" font-size="9" fill="#e74c3c">σt（小）</text>
+
+  <!-- 矢印 -->
+  <text x="280" y="105" font-size="24" fill="#555">→</text>
+  <text x="265" y="130" font-size="10" fill="#555">引抜き追加</text>
+
+  <!-- 曲げ＋引抜き -->
+  <text x="440" y="18" text-anchor="middle" font-size="12" font-weight="bold">曲げ ＋ 引抜き</text>
+  <rect x="370" y="30" width="60" height="160" fill="#eee" stroke="#333" stroke-width="1.5"/>
+  <polygon points="430,30 448,30 430,65" fill="rgba(52,152,219,0.2)" stroke="#2980b9" stroke-width="1.5"/>
+  <line x1="360" y1="65" x2="460" y2="65" stroke="#e67e22" stroke-width="1.5" stroke-dasharray="4,3"/>
+  <text x="465" y="68" font-size="9" fill="#e67e22">中立軸</text>
+  <circle cx="400" cy="160" r="4" fill="#c0392b"/>
+  <text x="465" y="45" font-size="9" fill="#2980b9">圧縮域</text>
+  <text x="465" y="58" font-size="9" fill="#c0392b">（狭い!）</text>
+  <text x="465" y="155" font-size="9" fill="#e74c3c">引張鉄筋</text>
+  <text x="465" y="168" font-size="9" fill="#e74c3c">σt（大!）</text>
+  <!-- 引抜力 -->
+  <line x1="400" y1="30" x2="400" y2="8" stroke="#e74c3c" stroke-width="2" marker-end="url(#arrowR)"/>
+  <text x="415" y="15" font-size="10" fill="#e74c3c">N</text>
+
+  <!-- 変化の説明 -->
+  <rect x="540" y="30" width="130" height="160" rx="6" fill="#fff8f0" stroke="#e67e22"/>
+  <text x="555" y="52" font-size="11" font-weight="bold" fill="#e67e22">変化まとめ</text>
+  <text x="555" y="78" font-size="10">中立軸 → 上に移動</text>
+  <text x="555" y="98" font-size="10">圧縮域 → 狭くなる</text>
+  <text x="555" y="118" font-size="10">σc' → 増大</text>
+  <text x="555" y="138" font-size="10">σt → 増大</text>
+  <text x="555" y="168" font-size="10" font-weight="bold" fill="#c0392b">→ より厳しい結果</text>
+</svg>
+<figcaption>図3: 引抜き力が加わると中立軸が上に移動し、各応力度が増大する</figcaption>
+</figure>
+</div>
+
+
+<h3 id="basics-eccentricity">2.3 偏心距離と応力状態の分類</h3>
+
+<p>引張軸力 $N$ と曲げモーメント $M$ の比を<strong>偏心距離 $e$</strong>と呼びます。</p>
+
+<div class="formula-box">
+$$e = \frac{M}{N}$$
+<p>$e$ が大きい → 曲げが卓越 → 断面の一部にコンクリート圧縮が残る<br>
+$e$ が小さい → 引張が卓越 → 断面全体が引張になる</p>
+</div>
+
+<div class="fig-container">
+<figure>
+<svg width="600" height="200" viewBox="0 0 600 200">
+  <!-- 大偏心 -->
+  <text x="120" y="18" text-anchor="middle" font-size="12" font-weight="bold">大偏心引張 (e &gt; d−dc)</text>
+  <rect x="40" y="30" width="50" height="140" fill="#eee" stroke="#333" stroke-width="1.5"/>
+  <polygon points="90,30 110,30 90,70" fill="rgba(52,152,219,0.3)" stroke="#2980b9" stroke-width="1.5"/>
+  <line x1="30" y1="70" x2="120" y2="70" stroke="#e67e22" stroke-width="1.5" stroke-dasharray="4,3"/>
+  <polygon points="90,70 90,170 120,170" fill="rgba(231,76,60,0.1)" stroke="#e74c3c" stroke-width="1"/>
+  <circle cx="65" cy="60" r="3" fill="#c0392b"/>
+  <circle cx="65" cy="140" r="3" fill="#c0392b"/>
+  <text x="130" y="55" font-size="9" fill="#2980b9">圧縮あり</text>
+  <text x="130" y="130" font-size="9" fill="#e74c3c">引張</text>
+  <text x="60" y="190" text-anchor="middle" font-size="9" fill="#555">このシートで計算</text>
+
+  <!-- 小偏心 -->
+  <text x="420" y="18" text-anchor="middle" font-size="12" font-weight="bold">小偏心引張 (e &le; d−dc)</text>
+  <rect x="350" y="30" width="50" height="140" fill="#eee" stroke="#333" stroke-width="1.5"/>
+  <polygon points="400,30 400,170 440,170 430,30" fill="rgba(231,76,60,0.15)" stroke="#e74c3c" stroke-width="1.5"/>
+  <circle cx="375" cy="60" r="3" fill="#c0392b"/>
+  <circle cx="375" cy="140" r="3" fill="#c0392b"/>
+  <text x="450" y="55" font-size="9" fill="#e74c3c">全断面が引張</text>
+  <text x="450" y="75" font-size="9" fill="#e74c3c">コンクリート</text>
+  <text x="450" y="88" font-size="9" fill="#e74c3c">抵抗なし</text>
+  <text x="450" y="130" font-size="9" fill="#c0392b">鉄筋だけで</text>
+  <text x="450" y="143" font-size="9" fill="#c0392b">N＋Mに抵抗</text>
+  <text x="370" y="190" text-anchor="middle" font-size="9" fill="#999">別途検討が必要</text>
+</svg>
+<figcaption>図4: 偏心距離による応力状態の違い</figcaption>
+</figure>
+</div>
+
+<div class="note">
+<strong>このシートの適用範囲：</strong>大偏心引張（断面の一部にコンクリート圧縮が残る場合）を対象としています。偏心距離の判定はシートが自動で行います。
+</div>
+
+
+<!-- ================================================================ -->
+<h2 id="sheet">3. シートの使い方</h2>
+
+<h3 id="sheet-colors">3.1 セルの色の意味</h3>
+
+<div class="table-wrap"><table>
+<tr>
+  <th style="width:100px">色</th>
+  <th>意味</th>
+  <th>何をする？</th>
+</tr>
+<tr>
+  <td class="cell-input" style="text-align:center">黄色</td>
+  <td>入力セル</td>
+  <td>自分の設計条件を入力する</td>
+</tr>
+<tr>
+  <td class="cell-trial" style="text-align:center">オレンジ</td>
+  <td>試行値（$x_n$）</td>
+  <td>Goal Seek で自動調整（後述）</td>
+</tr>
+<tr>
+  <td class="cell-calc" style="text-align:center">薄緑</td>
+  <td>計算結果</td>
+  <td>数式が入っている。触らない</td>
+</tr>
+<tr>
+  <th style="background:#d9e1f2;text-align:center">薄青</th>
+  <td>表ヘッダー</td>
+  <td>触らない</td>
+</tr>
+</table></div>
+
+
+<h3 id="sheet-inputs">3.2 入力項目</h3>
+
+<h4>断面諸元（セル F5〜F14）</h4>
+
+<div class="fig-container">
+<figure>
+<svg width="400" height="280" viewBox="0 0 400 280">
+  <!-- 断面 -->
+  <rect x="100" y="20" width="120" height="200" fill="#e8e8e8" stroke="#333" stroke-width="2"/>
+  <!-- 寸法b -->
+  <line x1="100" y1="240" x2="220" y2="240" stroke="#333" stroke-width="1"/>
+  <line x1="100" y1="235" x2="100" y2="245" stroke="#333" stroke-width="1"/>
+  <line x1="220" y1="235" x2="220" y2="245" stroke="#333" stroke-width="1"/>
+  <text x="160" y="256" text-anchor="middle" font-size="12" font-weight="bold">b</text>
+  <!-- 寸法D -->
+  <line x1="240" y1="20" x2="240" y2="220" stroke="#333" stroke-width="1"/>
+  <line x1="235" y1="20" x2="245" y2="20" stroke="#333" stroke-width="1"/>
+  <line x1="235" y1="220" x2="245" y2="220" stroke="#333" stroke-width="1"/>
+  <text x="260" y="125" text-anchor="middle" font-size="12" font-weight="bold">D</text>
+  <!-- 圧縮鉄筋 -->
+  <circle cx="135" cy="55" r="6" fill="#c0392b" stroke="#fff" stroke-width="1"/>
+  <circle cx="185" cy="55" r="6" fill="#c0392b" stroke="#fff" stroke-width="1"/>
+  <text x="68" y="59" font-size="11" fill="#c0392b" font-weight="bold">ac</text>
+  <!-- 引張鉄筋 -->
+  <circle cx="135" cy="185" r="6" fill="#c0392b" stroke="#fff" stroke-width="1"/>
+  <circle cx="185" cy="185" r="6" fill="#c0392b" stroke="#fff" stroke-width="1"/>
+  <text x="68" y="189" font-size="11" fill="#c0392b" font-weight="bold">at</text>
+  <!-- dc -->
+  <line x1="88" y1="20" x2="88" y2="55" stroke="#8e44ad" stroke-width="1.5"/>
+  <line x1="83" y1="20" x2="93" y2="20" stroke="#8e44ad" stroke-width="1"/>
+  <line x1="83" y1="55" x2="93" y2="55" stroke="#8e44ad" stroke-width="1"/>
+  <text x="78" y="42" text-anchor="middle" font-size="11" fill="#8e44ad" font-weight="bold">dc</text>
+  <!-- d -->
+  <line x1="78" y1="20" x2="78" y2="185" stroke="#27ae60" stroke-width="1.5"/>
+  <line x1="73" y1="20" x2="83" y2="20" stroke="#27ae60" stroke-width="1"/>
+  <line x1="73" y1="185" x2="83" y2="185" stroke="#27ae60" stroke-width="1"/>
+  <text x="68" y="108" text-anchor="middle" font-size="11" fill="#27ae60" font-weight="bold">d</text>
+  <!-- ラベル -->
+  <text x="160" y="16" text-anchor="middle" font-size="10" fill="#555">圧縮縁</text>
+  <!-- 凡例 -->
+  <rect x="280" y="30" width="110" height="120" rx="4" fill="#fff" stroke="#ccc"/>
+  <text x="290" y="50" font-size="10" font-weight="bold">記号の意味</text>
+  <text x="290" y="70" font-size="10" fill="#27ae60">d = 有効せい</text>
+  <text x="290" y="88" font-size="10" fill="#8e44ad">dc = 圧縮筋距離</text>
+  <text x="290" y="106" font-size="10" fill="#c0392b">at = 引張鉄筋面積</text>
+  <text x="290" y="124" font-size="10" fill="#c0392b">ac = 圧縮鉄筋面積</text>
+  <text x="290" y="142" font-size="10">b = 断面幅</text>
+</svg>
+<figcaption>図5: 断面諸元の記号と位置関係</figcaption>
+</figure>
+</div>
+
+<h4>配筋タイプ別の入力</h4>
+
+<div class="table-wrap"><table>
+<tr><th>項目</th><th>両側配筋（柱など）</th><th>中央1段配筋（スラブなど）</th></tr>
+<tr><td>d</td><td>D − かぶり − 鉄筋径/2</td><td><strong>D / 2</strong></td></tr>
+<tr><td>dc</td><td>かぶり + 鉄筋径/2</td><td><strong>D / 2</strong></td></tr>
+<tr><td>at</td><td>引張側鉄筋の断面積</td><td>鉄筋の全断面積</td></tr>
+<tr><td>ac</td><td>圧縮側鉄筋の断面積</td><td><strong>0</strong></td></tr>
+</table></div>
+
+<h4>許容応力度（長期 / 短期）</h4>
+
+<div class="table-wrap"><table>
+<tr><th></th><th>長期（常時）</th><th>短期（地震時）</th></tr>
+<tr><td>fc（Fc21の場合）</td><td>7.0 N/mm²</td><td>14.0 N/mm²</td></tr>
+<tr><td>ft（SD295Aの場合）</td><td>195 N/mm²</td><td>295 N/mm²</td></tr>
+<tr><td>ft（SD345の場合）</td><td>215 N/mm²</td><td>345 N/mm²</td></tr>
+</table></div>
+
+
+<h3 id="sheet-goalsseek">3.3 Goal Seek の手順</h3>
+
+<p>中立軸位置 $x_n$ は、力とモーメントの釣合いを同時に満たす値を見つける必要があります。これを手で試行錯誤するのは大変なので、Excelの <strong>ゴールシーク</strong>機能で自動化します。</p>
+
+<div class="excel-steps">
+<strong>Goal Seek の操作手順：</strong>
+<ol>
+<li>Excelシートを開き、黄色セルに入力値を設定する</li>
+<li>オレンジセル（F22）に $x_n$ の初期値を入力する（$d/3$ くらいが目安）</li>
+<li>メニュー：<strong>「データ」→「What-If分析」→「ゴールシーク」</strong></li>
+<li>ダイアログに入力：
+  <div class="table-wrap"><table>
+  <tr><th>項目</th><th>入力値</th><th>意味</th></tr>
+  <tr><td>数式入力セル</td><td><code>F42</code></td><td>誤差のセル</td></tr>
+  <tr><td>目標値</td><td><code>0</code></td><td>誤差をゼロにしたい</td></tr>
+  <tr><td>変化させるセル</td><td><code>F22</code></td><td>$x_n$ を動かす</td></tr>
+  </table></div>
+</li>
+<li>「OK」を押す → $x_n$ が自動調整される</li>
+<li>全ての数式が連動して更新される</li>
+<li>Step 5 の検定欄で OK / NG を確認</li>
+</ol>
+</div>
+
+<div class="tip">
+<strong>Goal Seek がうまくいかないとき：</strong>
+<ul>
+<li>$x_n$ の初期値を $d/3$ 程度に変えてみる</li>
+<li><code>#DIV/0!</code> が出たら $x_n$ を少し変えてリトライ</li>
+<li>σc' が負になるなら $x_n$ が大きすぎる → 小さくする</li>
+</ul>
+</div>
+
+
+<!-- ================================================================ -->
+<h2 id="theory">4. 計算式の詳細解説</h2>
+
+<p>ここからが本題です。シートの中で使っている数式を、一つずつ丁寧に解説します。</p>
+
+<h3 id="theory-me">4.1 外力モーメント $M_e$（引張鉄筋位置まわり）</h3>
+
+<p>力の釣合いを解きやすくするために、<strong>引張鉄筋の位置</strong>を基準にモーメントを計算します。</p>
+
+<div class="fig-container">
+<figure>
+<svg width="450" height="240" viewBox="0 0 450 240">
+  <rect x="80" y="20" width="80" height="180" fill="#e8e8e8" stroke="#333" stroke-width="2"/>
+  <!-- 断面中心 -->
+  <line x1="70" y1="110" x2="170" y2="110" stroke="#aaa" stroke-width="1" stroke-dasharray="3,3"/>
+  <text x="175" y="113" font-size="9" fill="#aaa">断面中心</text>
+  <!-- 引張鉄筋位置 -->
+  <line x1="70" y1="170" x2="170" y2="170" stroke="#c0392b" stroke-width="1.5" stroke-dasharray="3,3"/>
+  <circle cx="120" cy="170" r="5" fill="#c0392b"/>
+  <text x="175" y="173" font-size="9" fill="#c0392b">引張鉄筋位置</text>
+  <!-- N -->
+  <line x1="120" y1="110" x2="120" y2="5" stroke="#27ae60" stroke-width="2.5" marker-end="url(#arrowG)"/>
+  <text x="130" y="50" font-size="12" font-weight="bold" fill="#27ae60">N</text>
+  <!-- M -->
+  <path d="M 78 105 Q 55 75, 78 45" fill="none" stroke="#2980b9" stroke-width="2" marker-end="url(#arrowB)"/>
+  <text x="42" y="75" font-size="12" font-weight="bold" fill="#2980b9">M</text>
+  <!-- d - D/2 -->
+  <line x1="55" y1="110" x2="55" y2="170" stroke="#e67e22" stroke-width="1.5"/>
+  <line x1="50" y1="110" x2="60" y2="110" stroke="#e67e22" stroke-width="1"/>
+  <line x1="50" y1="170" x2="60" y2="170" stroke="#e67e22" stroke-width="1"/>
+  <text x="30" y="145" text-anchor="middle" font-size="10" fill="#e67e22">d−D/2</text>
+  <!-- 説明 -->
+  <rect x="240" y="20" width="200" height="200" rx="6" fill="#f0f4ff" stroke="#b0c4de"/>
+  <text x="255" y="45" font-size="11" font-weight="bold" fill="#1a5276">なぜ引張鉄筋位置まわり？</text>
+  <text x="255" y="70" font-size="10">N は断面中心に作用します。</text>
+  <text x="255" y="90" font-size="10">これを引張鉄筋位置まわりの</text>
+  <text x="255" y="108" font-size="10">モーメントに変換すると、</text>
+  <text x="255" y="128" font-size="10">引張鉄筋の力 T がモーメント</text>
+  <text x="255" y="146" font-size="10">方程式から消えて、</text>
+  <text x="255" y="166" font-size="10" font-weight="bold">圧縮側の力だけの式</text>
+  <text x="255" y="184" font-size="10">になるので解きやすい！</text>
+</svg>
+<figcaption>図6: 引張鉄筋位置まわりのモーメント変換</figcaption>
+</figure>
+</div>
+
+<div class="formula-box">
+<div class="label">外力モーメント $M_e$（引張鉄筋位置まわり）</div>
+$$M_e = M + N \times \left( d - \frac{D}{2} \right)$$
+<p><strong>各項の意味：</strong></p>
+<ul>
+<li>$M$：外力の曲げモーメント（断面中心まわり）</li>
+<li>$N \times (d - D/2)$：引抜力 $N$ が断面中心に作用 → 引張鉄筋位置まではアーム長 $(d - D/2)$ があるので、その分だけ追加のモーメントが生じる</li>
+</ul>
+<p><strong>中央配筋の場合：</strong>鉄筋位置 = 断面中心（$d = D/2$）なので $(d - D/2) = 0$ → $M_e = M$。追加モーメントはゼロ。</p>
+</div>
+
+
+<h3 id="theory-sigma">4.2 応力度の算定（平面保持から）</h3>
+
+<p>平面保持の仮定により、ひずみは中立軸からの距離に比例します。ヤング係数比 $n$ を使って応力度に変換します。</p>
+
+<div class="fig-container">
+<figure>
+<svg width="520" height="250" viewBox="0 0 520 250">
+  <!-- 断面 -->
+  <rect x="30" y="20" width="60" height="180" fill="#e8e8e8" stroke="#333" stroke-width="1.5"/>
+  <line x1="20" y1="80" x2="100" y2="80" stroke="#e67e22" stroke-width="2" stroke-dasharray="5,3"/>
+  <text x="15" y="82" text-anchor="end" font-size="9" fill="#e67e22">xn</text>
+  <!-- 圧縮縁 -->
+  <text x="60" y="16" text-anchor="middle" font-size="9">圧縮縁</text>
+  <!-- dc, d -->
+  <circle cx="60" cy="55" r="4" fill="#c0392b"/>
+  <text x="100" y="59" font-size="9" fill="#c0392b">圧縮筋 (dc)</text>
+  <circle cx="60" cy="170" r="4" fill="#c0392b"/>
+  <text x="100" y="174" font-size="9" fill="#c0392b">引張筋 (d)</text>
+
+  <!-- ひずみ分布 -->
+  <g transform="translate(160,0)">
+    <text x="60" y="16" text-anchor="middle" font-size="11" font-weight="bold">ひずみ</text>
+    <line x1="60" y1="20" x2="60" y2="200" stroke="#333" stroke-width="1"/>
+    <line x1="60" y1="80" x2="120" y2="80" stroke="#e67e22" stroke-width="1" stroke-dasharray="3"/>
+    <line x1="28" y1="20" x2="105" y2="200" stroke="#8e44ad" stroke-width="2"/>
+    <!-- εc -->
+    <line x1="28" y1="20" x2="60" y2="20" stroke="#3498db" stroke-width="1.5"/>
+    <text x="22" y="24" font-size="9" fill="#3498db">εc</text>
+    <!-- εs1 at dc -->
+    <line x1="38" y1="55" x2="60" y2="55" stroke="#3498db" stroke-width="1" stroke-dasharray="2"/>
+    <!-- εs2 at d -->
+    <line x1="60" y1="170" x2="95" y2="170" stroke="#e74c3c" stroke-width="1" stroke-dasharray="2"/>
+  </g>
+
+  <!-- 応力分布 -->
+  <g transform="translate(320,0)">
+    <text x="60" y="16" text-anchor="middle" font-size="11" font-weight="bold">応力度</text>
+    <line x1="60" y1="20" x2="60" y2="200" stroke="#333" stroke-width="1"/>
+    <line x1="60" y1="80" x2="120" y2="80" stroke="#e67e22" stroke-width="1" stroke-dasharray="3"/>
+    <!-- σc' -->
+    <polygon points="60,20 30,20 60,80" fill="rgba(52,152,219,0.2)" stroke="#2980b9" stroke-width="1.5"/>
+    <text x="22" y="24" font-size="10" font-weight="bold" fill="#2980b9">σc'</text>
+    <!-- σc_s -->
+    <line x1="35" y1="55" x2="60" y2="55" stroke="#8e44ad" stroke-width="3"/>
+    <text x="10" y="59" font-size="9" fill="#8e44ad">σc_s</text>
+    <!-- σt -->
+    <line x1="60" y1="170" x2="110" y2="170" stroke="#e74c3c" stroke-width="3"/>
+    <text x="115" y="174" font-size="10" font-weight="bold" fill="#e74c3c">σt</text>
+    <!-- 引張コン無視 -->
+    <text x="65" y="140" font-size="8" fill="#999">コンクリート</text>
+    <text x="65" y="152" font-size="8" fill="#999">引張=無視</text>
+  </g>
+</svg>
+<figcaption>図7: 平面保持の仮定に基づくひずみ分布と応力分布</figcaption>
+</figure>
+</div>
+
+<div class="formula-box">
+<div class="label">コンクリート圧縮縁応力度 $\sigma_c'$</div>
+<p>力の釣合い式（後述）を $\sigma_c'$ について解いたもの：</p>
+$$\sigma_c' = \frac{N \times 1000}{a_t \cdot n \cdot \dfrac{d - x_n}{x_n} - a_c \cdot n \cdot \dfrac{x_n - d_c}{x_n} - \dfrac{b \cdot x_n}{2}}$$
+<p><strong>分母の各項は何か：</strong></p>
+<ul>
+<li>$a_t \cdot n \cdot \dfrac{d - x_n}{x_n}$：引張鉄筋の応力度を $\sigma_c'$ で表したときの「引張側の寄与」</li>
+<li>$a_c \cdot n \cdot \dfrac{x_n - d_c}{x_n}$：圧縮鉄筋の「圧縮側の寄与」</li>
+<li>$\dfrac{b \cdot x_n}{2}$：コンクリート三角形圧縮ブロックの面積</li>
+</ul>
+<p>$N \times 1000$ は kN → N への変換です。</p>
+</div>
+
+<div class="formula-box">
+<div class="label">引張鉄筋応力度 $\sigma_t$</div>
+$$\sigma_t = n \cdot \sigma_c' \cdot \frac{d - x_n}{x_n}$$
+<p><strong>導出の流れ：</strong></p>
+<ol>
+<li>平面保持 → 圧縮縁のひずみ $\varepsilon_c$ に対して、引張鉄筋位置のひずみは $\varepsilon_t = \varepsilon_c \cdot \dfrac{d - x_n}{x_n}$</li>
+<li>フックの法則 → $\sigma_c' = E_c \cdot \varepsilon_c$, $\sigma_t = E_s \cdot \varepsilon_t$</li>
+<li>$n = E_s / E_c$ を使うと → $\sigma_t = n \cdot \sigma_c' \cdot \dfrac{d - x_n}{x_n}$</li>
+</ol>
+<p>つまり「中立軸からの距離の比 × $n$ 倍」です。鉄筋は中立軸から遠いほど応力が大きくなります。</p>
+</div>
+
+<div class="formula-box">
+<div class="label">圧縮鉄筋応力度 $\sigma_{c,s}$（両側配筋のみ）</div>
+$$\sigma_{c,s} = n \cdot \sigma_c' \cdot \frac{x_n - d_c}{x_n}$$
+<p>$\sigma_t$ と同じ考え方です。中立軸から圧縮鉄筋までの距離は $(x_n - d_c)$。<br>
+中央1段配筋（$a_c = 0$）の場合は使いません。</p>
+</div>
+
+
+<h3 id="theory-force">4.3 力の釣合い</h3>
+
+<p>断面内の力の合計がゼロになる（正確には外力 $N$ と釣り合う）ことを確認します。</p>
+
+<div class="fig-container">
+<figure>
+<svg width="480" height="220" viewBox="0 0 480 220">
+  <rect x="40" y="20" width="70" height="170" fill="#e8e8e8" stroke="#333" stroke-width="1.5"/>
+  <line x1="30" y1="75" x2="120" y2="75" stroke="#e67e22" stroke-width="1.5" stroke-dasharray="4,3"/>
+  <!-- C -->
+  <line x1="155" y1="45" x2="130" y2="45" stroke="#2980b9" stroke-width="2.5" marker-start="url(#arrowB)"/>
+  <text x="160" y="49" font-size="12" font-weight="bold" fill="#2980b9">C</text>
+  <text x="160" y="65" font-size="9" fill="#2980b9">= b·xn·σc'/2</text>
+  <!-- Cc -->
+  <line x1="155" y1="50" x2="130" y2="50" stroke="#8e44ad" stroke-width="1.5"/>
+  <text x="248" y="49" font-size="12" font-weight="bold" fill="#8e44ad">Cc</text>
+  <text x="248" y="65" font-size="9" fill="#8e44ad">= ac·σc_s</text>
+  <!-- T -->
+  <line x1="130" y1="160" x2="155" y2="160" stroke="#e74c3c" stroke-width="2.5" marker-end="url(#arrowR)"/>
+  <text x="160" y="164" font-size="12" font-weight="bold" fill="#e74c3c">T</text>
+  <text x="160" y="180" font-size="9" fill="#e74c3c">= at·σt</text>
+  <!-- N -->
+  <line x1="75" y1="20" x2="75" y2="2" stroke="#27ae60" stroke-width="2.5" marker-end="url(#arrowG)"/>
+  <text x="82" y="10" font-size="12" font-weight="bold" fill="#27ae60">N</text>
+  <!-- 式 -->
+  <rect x="300" y="90" width="170" height="60" rx="6" fill="#f0f4ff" stroke="#b0c4de" stroke-width="1.5"/>
+  <text x="385" y="115" text-anchor="middle" font-size="12" font-weight="bold" fill="#1a5276">力の釣合い</text>
+  <text x="385" y="138" text-anchor="middle" font-size="12">N = T − Cc − C</text>
+</svg>
+<figcaption>図8: 断面内の力の釣合い</figcaption>
+</figure>
+</div>
+
+<div class="formula-box">
+<div class="label">力の釣合い式</div>
+$$N = T - C_c - C$$
+<p>展開すると：</p>
+$$N = a_t \cdot \sigma_t - a_c \cdot \sigma_{c,s} - \frac{1}{2} \cdot b \cdot x_n \cdot \sigma_c'$$
+<p>各項の意味：</p>
+<div class="table-wrap"><table>
+<tr><th>項</th><th>何の力か</th><th>方向</th></tr>
+<tr><td>$T = a_t \cdot \sigma_t$</td><td>引張鉄筋の引張力</td><td>引張（正）</td></tr>
+<tr><td>$C_c = a_c \cdot \sigma_{c,s}$</td><td>圧縮鉄筋の圧縮力</td><td>圧縮（負）</td></tr>
+<tr><td>$C = \frac{1}{2} b \cdot x_n \cdot \sigma_c'$</td><td>コンクリート圧縮ブロックの合力</td><td>圧縮（負）</td></tr>
+</table></div>
+<p>コンクリート圧縮は三角形分布なので、面積 = 底辺 $x_n$ × 高さ $\sigma_c'$ ÷ 2 です。幅 $b$ を掛けて力にします。</p>
+</div>
+
+
+<h3 id="theory-moment">4.4 モーメントの釣合い</h3>
+
+<p>引張鉄筋位置まわりのモーメントの釣合いです。</p>
+
+<div class="formula-box">
+<div class="label">内力モーメント $M_i$（引張鉄筋位置まわり）</div>
+$$M_i = C \times \left(d - \frac{x_n}{3}\right) + C_c \times (d - d_c)$$
+<p>各項の意味：</p>
+<ul>
+<li>$C \times (d - x_n/3)$：コンクリート圧縮合力のモーメント。三角形分布の合力の作用位置は圧縮縁から $x_n/3$ の位置なので、引張鉄筋までの距離は $d - x_n/3$。</li>
+<li>$C_c \times (d - d_c)$：圧縮鉄筋の合力のモーメント。引張鉄筋から圧縮鉄筋までの距離は $d - d_c$。</li>
+</ul>
+</div>
+
+<div class="formula-box">
+<div class="label">モーメントの釣合い条件</div>
+$$M_i = M_e$$
+<p>内力モーメントと外力モーメントが一致するとき、モーメントの釣合いが成立します。<br>
+シートの<strong>「誤差」セル</strong>は、この釣合いのずれを表しています。</p>
+</div>
+
+<div class="fig-container">
+<figure>
+<svg width="500" height="200" viewBox="0 0 500 200">
+  <rect x="40" y="20" width="60" height="150" fill="#e8e8e8" stroke="#333" stroke-width="1.5"/>
+  <line x1="30" y1="65" x2="110" y2="65" stroke="#e67e22" stroke-width="1.5" stroke-dasharray="4,3"/>
+  <!-- C の位置 xn/3 -->
+  <circle cx="75" cy="35" r="3" fill="#2980b9"/>
+  <text x="115" y="38" font-size="9" fill="#2980b9">C の作用位置 (xn/3)</text>
+  <!-- 引張鉄筋 -->
+  <circle cx="70" cy="145" r="4" fill="#c0392b"/>
+  <!-- アーム -->
+  <line x1="130" y1="35" x2="130" y2="145" stroke="#333" stroke-width="1"/>
+  <line x1="125" y1="35" x2="135" y2="35" stroke="#333" stroke-width="1"/>
+  <line x1="125" y1="145" x2="135" y2="145" stroke="#333" stroke-width="1"/>
+  <text x="140" y="95" font-size="10" font-weight="bold">d − xn/3</text>
+  <!-- 式 -->
+  <rect x="220" y="30" width="260" height="140" rx="6" fill="#f0f4ff" stroke="#b0c4de"/>
+  <text x="240" y="55" font-size="11" font-weight="bold" fill="#1a5276">三角形分布の合力の作用位置</text>
+  <text x="240" y="82" font-size="10">コンクリートの圧縮応力は</text>
+  <text x="240" y="100" font-size="10">圧縮縁で最大 → 中立軸でゼロ</text>
+  <text x="240" y="118" font-size="10">の<strong>三角形分布</strong>です。</text>
+  <text x="240" y="145" font-size="10">三角形の重心は底辺から 1/3 の</text>
+  <text x="240" y="163" font-size="10">位置 → 合力の作用位置は圧縮縁</text>
+  <text x="240" y="163" font-size="10">から <strong>xn/3</strong> の位置。</text>
+</svg>
+<figcaption>図9: コンクリート圧縮合力の作用位置</figcaption>
+</figure>
+</div>
+
+
+<h3 id="theory-xn">4.5 なぜ $x_n$ を試行法で求めるか</h3>
+
+<p>ここまでの式をまとめると、未知数は <strong>$x_n$（中立軸位置）</strong>と <strong>$\sigma_c'$（コンクリート圧縮縁応力度）</strong>の2つで、方程式は<strong>力の釣合い</strong>と<strong>モーメントの釣合い</strong>の2本です。</p>
+
+<p>2つの連立方程式を解けばよいのですが、$x_n$ に関して<strong>非線形</strong>（分母に $x_n$ が入っている）なので、代数的にきれいな解が出ません。そこで：</p>
+
+<ol>
+<li>$x_n$ を仮定する</li>
+<li>力の釣合いから $\sigma_c'$ を求める</li>
+<li>その $\sigma_c'$ でモーメントの釣合いが成立するか確認する</li>
+<li>成立しなければ $x_n$ を調整して 1 に戻る</li>
+</ol>
+
+<p>この「調整」をExcelのGoal Seekが自動でやってくれます。</p>
+
+<div class="note">
+<strong>RC規準14条の解説</strong>にも「コンピューターを用いれば数値解析的に容易に求まることなどから、具体的な算定式は省略し基本条件のみが示される方針に変更」と記されています。つまり、<strong>PCで試行法で解くことを前提にした規準</strong>です。
+</div>
+
+
+<!-- ================================================================ -->
+<h2 id="example">5. 計算例</h2>
+
+<h3>条件</h3>
+<div class="table-wrap"><table>
+<tr><th>項目</th><th>値</th></tr>
+<tr><td>断面</td><td>150 × 150 mm</td></tr>
+<tr><td>主筋</td><td>1-D16（中央配筋, $a_t$ = 198.6 mm²）</td></tr>
+<tr><td>コンクリート</td><td>Fc21, $f_c$ = 7.0 N/mm²（長期）</td></tr>
+<tr><td>鉄筋</td><td>SD295A, $f_t$ = 195 N/mm²（長期）</td></tr>
+<tr><td>引抜力</td><td>$N$ = 10 kN</td></tr>
+<tr><td>曲げ</td><td>$M$ = 2 kN·m</td></tr>
+</table></div>
+
+<p>中央配筋なので $d = D/2 = 75$ mm, $d_c = 75$ mm, $a_c = 0$。</p>
+
+<h3>計算の流れ</h3>
+
+<div class="formula-box">
+<div class="label">Step 1: 偏心距離</div>
+$$e = \frac{M}{N} = \frac{2 \times 10^6}{10 \times 10^3} = 200 \text{ mm}$$
+$$d - d_c = 75 - 75 = 0 \text{ mm}$$
+$$e = 200 > 0 = d - d_c \quad \Rightarrow \quad \text{大偏心引張}$$
+</div>
+
+<div class="formula-box">
+<div class="label">Step 2: 外力モーメント</div>
+$$M_e = M + N(d - D/2) = 2 \times 10^6 + 10{,}000 \times (75 - 75) = 2{,}000{,}000 \text{ N·mm}$$
+<p>中央配筋なので $d = D/2$ → 追加モーメントはゼロ。</p>
+</div>
+
+<div class="formula-box">
+<div class="label">Step 3: Goal Seek で $x_n \approx 34.8$ mm を得る</div>
+$$\sigma_c' = \frac{10{,}000}{198.6 \times 15 \times \frac{75 - 34.8}{34.8} - 0 - 0.5 \times 150 \times 34.8} = \frac{10{,}000}{3{,}441.7 - 2{,}610} = \frac{10{,}000}{831.7} \approx 12.0 \text{ N/mm}^2$$
+$$\sigma_t = 15 \times 12.0 \times \frac{75 - 34.8}{34.8} = 15 \times 12.0 \times 1.155 \approx 208 \text{ N/mm}^2$$
+</div>
+
+<div class="formula-box">
+<div class="label">Step 4: 検定</div>
+<div class="table-wrap"><table>
+<tr><th>項目</th><th>算定値</th><th>許容値</th><th>比率</th><th>判定</th></tr>
+<tr><td>$\sigma_c'$</td><td>12.0 N/mm²</td><td>7.0 N/mm²</td><td>1.72</td><td class="cell-ng">NG</td></tr>
+<tr><td>$\sigma_t$</td><td>208 N/mm²</td><td>195 N/mm²</td><td>1.07</td><td class="cell-ng">NG</td></tr>
+</table></div>
+<p><strong>→ この断面では持たない。</strong>中央配筋1本では有効せいが小さすぎる（曲げへの抵抗アームが短い）。</p>
+</div>
+
+<div class="tip">
+<strong>改善策：</strong>
+<ul>
+<li>配筋を増やす（2-D16 → $a_t$ = 397.2 mm²）</li>
+<li>断面を大きくする</li>
+<li>両側配筋にして有効せいを確保する（$d = 115$ mm になり、テコの腕が長くなる）</li>
+</ul>
+</div>
+
+
+<!-- ================================================================ -->
+<h2 id="formulas">6. セルの数式一覧</h2>
+
+<div class="table-wrap"><table>
+<tr><th>セル</th><th>内容</th><th>Excel数式</th></tr>
+<tr><td>F25</td><td>偏心距離 $e$ (mm)</td><td><code>=IF(F17=0,"--",F18*1000/F17)</code></td></tr>
+<tr><td>F26</td><td>鉄筋間距離 $d - d_c$ (mm)</td><td><code>=F7-F8</code></td></tr>
+<tr><td>F27</td><td>偏心判定</td><td><code>=IF(F25>F26,"大偏心引張","小偏心引張")</code></td></tr>
+<tr><td>F32</td><td>$M_e$ (N·mm)</td><td><code>=F18*1000000+F17*1000*(F7-F6/2)</code></td></tr>
+<tr><td>F33</td><td>$\sigma_c'$ (N/mm²)</td><td><code>=F17*1000/(F9*F14*(F7-F22)/F22<br>-F10*F14*(F22-F8)/F22-0.5*F5*F22)</code></td></tr>
+<tr><td>F34</td><td>$\sigma_t$ (N/mm²)</td><td><code>=F14*F33*(F7-F22)/F22</code></td></tr>
+<tr><td>F35</td><td>$\sigma_{c,s}$ (N/mm²)</td><td><code>=IF(F10=0,0,F14*F33*(F22-F8)/F22)</code></td></tr>
+<tr><td>F38</td><td>$C$ (kN)</td><td><code>=0.5*F5*F22*F33/1000</code></td></tr>
+<tr><td>F39</td><td>$C_c$ (kN)</td><td><code>=F10*F35/1000</code></td></tr>
+<tr><td>F40</td><td>$T$ (kN)</td><td><code>=F9*F34/1000</code></td></tr>
+<tr><td>F41</td><td>$T - C_c - C$ (kN)</td><td><code>=F40-F39-F38</code></td></tr>
+<tr><td>F42</td><td>誤差 (kN)</td><td><code>=F41-F17</code></td></tr>
+<tr><td>F43</td><td>$M_i$ (kN·m)</td><td><code>=(F38*1000*(F7-F22/3)<br>+F39*1000*(F7-F8))/1000000</code></td></tr>
+<tr><td>F44</td><td>$M_e$ (kN·m)</td><td><code>=F32/1000000</code></td></tr>
+<tr><td>K48</td><td>$\sigma_c'$ 判定</td><td><code>=IF(ABS(F33)&lt;=F12,"OK","NG")</code></td></tr>
+<tr><td>K49</td><td>$\sigma_t$ 判定</td><td><code>=IF(ABS(F34)&lt;=F13,"OK","NG")</code></td></tr>
+</table></div>
+
+
+<!-- ================================================================ -->
+<h2 id="faq">7. よくある質問</h2>
+
+<h3>Q. スラブに使える？</h3>
+<p><strong>使えます。</strong> $b = 1000$ mm（単位幅あたり）、$D$ = スラブ厚 として入力してください。RC規準13条の4により、スラブの曲げは梁の規定に準じます。</p>
+
+<h3>Q. 長期と短期はどう使い分ける？</h3>
+<p>$f_c$ と $f_t$ の値を変えるだけです。地震時の検定なら短期の値を使います。</p>
+
+<h3>Q. 小偏心引張（全断面引張）と出たらどうする？</h3>
+<p>このシートは大偏心引張を対象としています。全断面引張の場合は、コンクリートの抵抗がゼロで、両側の鉄筋のみで $N$ と $M$ に抵抗する別の計算になります（RC規準 付10.12式, 付10.13式）。</p>
+
+<h3>Q. せん断の検定は？</h3>
+<p>このシートでは行いません。せん断は別途検定してください。</p>
+
+<h3>Q. 終局強度で検定したいのですが？</h3>
+<p>このシートは<strong>許容応力度設計</strong>です。終局強度の検定（保有水平耐力の確認など）には別の手法が必要です。</p>
+
+
+<!-- ================================================================ -->
+<h2 id="ref">8. 根拠条文</h2>
+
+<div class="table-wrap"><table>
+<tr><th>条文</th><th>内容</th><th>このシートとの関係</th></tr>
+<tr><td>RC規準 12条</td><td>曲げ材の基本仮定</td><td>全ての計算の大前提（平面保持、コンクリート引張無視、$n$）</td></tr>
+<tr><td>RC規準 13条の4</td><td>スラブの曲げ</td><td>スラブは梁の規定（13条）に準じる → $M = a_t \cdot f_t \cdot j$</td></tr>
+<tr><td>RC規準 14条</td><td>柱の軸力＋曲げ</td><td><strong>「引張軸力を受ける場合は精算を行う」</strong>と明記</td></tr>
+<tr><td>RC規準 14条 解説</td><td>算定式の省略理由</td><td>「PCで容易に求まるので具体的な式は省略」</td></tr>
+<tr><td>RC規準 付10.12式</td><td>全断面引張時の軸力</td><td>$N_T = -\Sigma a_i \cdot \sigma_{yi}$</td></tr>
+<tr><td>RC規準 付10.13式</td><td>全断面引張時のモーメント</td><td>$M_T = N_T \cdot e$</td></tr>
+</table></div>
+
+<hr style="margin-top: 40px;">
+<p style="font-size: 0.8em; color: #888;">
+ファイル構成: <code>RC引抜曲げ断面算定.xlsx</code>（Excel本体）/ <code>RC引抜曲げ断面算定.py</code>（生成スクリプト）/ <code>RC引抜曲げ断面算定_説明書.html</code>（この説明書）<br>
+生成日: 2026-04-06
+</p>
+
+</body>
+</html>
