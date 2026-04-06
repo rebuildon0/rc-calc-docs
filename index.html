@@ -157,6 +157,14 @@ svg text { font-family: "Noto Sans JP", sans-serif; }
 
 <p>通常のRC梁の設計では「曲げだけ」を考えれば済みますが、引抜き力が加わると話が変わります。RC規準には専用の検定式がなく、<strong>12条の基本仮定に立ち返って精算する</strong>必要があります。このシートは、その精算をExcelの数式で自動化します。</p>
 
+<div class="note">
+<strong>このシートの符号規約：</strong> $N > 0$ は引張（引抜き方向）、$M > 0$ は引張鉄筋側に引張を生じさせる方向です。応力度は圧縮を正、引張を正のどちらも使いますが、検定では絶対値で比較します。
+</div>
+
+<div class="note">
+<strong>単位系：</strong> このシートでは、入力は $N$ を kN、$M$ を kN&middot;m で入力します。内部の計算式では N（ニュートン）と mm に換算して計算しています。式中に「$\times 1000$」が出てくるのはこの単位変換のためです。
+</div>
+
 
 <!-- ================================================================ -->
 <h2 id="basics">2. 前提知識のおさらい</h2>
@@ -353,7 +361,8 @@ $e$ が小さい → 引張が卓越 → 断面全体が引張になる</p>
 </div>
 
 <div class="note">
-<strong>このシートの適用範囲：</strong>大偏心引張（断面の一部にコンクリート圧縮が残る場合）を対象としています。偏心距離の判定はシートが自動で行います。
+<strong>このシートの適用範囲：</strong>大偏心引張（断面の一部にコンクリート圧縮が残る場合）を対象としています。偏心距離の判定はシートが自動で行います。<br>
+<strong>中央配筋の場合：</strong>$d = d_c$ なので $d - d_c = 0$ となり、引張力がゼロでない限り常に大偏心引張になります（コンクリートに必ず圧縮域が生じる）。
 </div>
 
 
@@ -433,7 +442,7 @@ $e$ が小さい → 引張が卓越 → 断面全体が引張になる</p>
   <!-- 凡例 -->
   <rect x="280" y="30" width="110" height="120" rx="4" fill="#fff" stroke="#ccc"/>
   <text x="290" y="50" font-size="10" font-weight="bold">記号の意味</text>
-  <text x="290" y="70" font-size="10" fill="#27ae60">d = 有効せい</text>
+  <text x="290" y="70" font-size="10" fill="#27ae60">d = 有効せい(圧縮縁〜引張筋)</text>
   <text x="290" y="88" font-size="10" fill="#8e44ad">dc = 圧縮筋距離</text>
   <text x="290" y="106" font-size="10" fill="#c0392b">at = 引張鉄筋面積</text>
   <text x="290" y="124" font-size="10" fill="#c0392b">ac = 圧縮鉄筋面積</text>
@@ -465,7 +474,15 @@ $e$ が小さい → 引張が卓越 → 断面全体が引張になる</p>
 
 <h3 id="sheet-goalsseek">3.3 Goal Seek の手順</h3>
 
-<p>中立軸位置 $x_n$ は、力とモーメントの釣合いを同時に満たす値を見つける必要があります。これを手で試行錯誤するのは大変なので、Excelの <strong>ゴールシーク</strong>機能で自動化します。</p>
+<p>中立軸位置 $x_n$ は、力とモーメントの釣合いを同時に満たす値を見つける必要があります。これを手で試行錯誤するのは大変なので、Excelの <strong>ゴールシーク（Goal Seek）</strong>機能で自動化します。</p>
+
+<div class="tip">
+<strong>ゴールシークとは？</strong> 「あるセルの値を目標値（例: 0）にするために、別のセルの値を自動的に調整する」Excelの機能です。方程式を手で解く代わりに、Excelが高速で試行錯誤してくれます。
+</div>
+
+<div class="note">
+<strong>なぜモーメント誤差をゼロにするのか？</strong> このシートでは、$\sigma_c'$ を力の釣合い式から算出しているので、<strong>力の釣合いは常に自動的に成立</strong>します。残る条件は<strong>モーメントの釣合い</strong>です。xn を動かしてモーメント誤差（Mi − Me）= 0 になる点を見つけることで、力・モーメント両方の釣合いが同時に成立します。
+</div>
 
 <div class="excel-steps">
 <strong>Goal Seek の操作手順：</strong>
@@ -476,8 +493,8 @@ $e$ が小さい → 引張が卓越 → 断面全体が引張になる</p>
 <li>ダイアログに入力：
   <div class="table-wrap"><table>
   <tr><th>項目</th><th>入力値</th><th>意味</th></tr>
-  <tr><td>数式入力セル</td><td><code>F42</code></td><td>誤差のセル</td></tr>
-  <tr><td>目標値</td><td><code>0</code></td><td>誤差をゼロにしたい</td></tr>
+  <tr><td>数式入力セル</td><td><code>F44</code></td><td>モーメント誤差のセル（Mi − Me）</td></tr>
+  <tr><td>目標値</td><td><code>0</code></td><td>モーメント誤差をゼロにしたい</td></tr>
   <tr><td>変化させるセル</td><td><code>F22</code></td><td>$x_n$ を動かす</td></tr>
   </table></div>
 </li>
@@ -614,7 +631,7 @@ $$M_e = M + N \times \left( d - \frac{D}{2} \right)$$
 
 <div class="formula-box">
 <div class="label">コンクリート圧縮縁応力度 $\sigma_c'$</div>
-<p>力の釣合い式（後述）を $\sigma_c'$ について解いたもの：</p>
+<p>この式は、<a href="#theory-force">4.3節で説明する力の釣合い式</a> $N = T - C_c - C$ の各項を平面保持で $\sigma_c'$ の関数にして、$\sigma_c'$ について解いたものです（先に結果を示します）：</p>
 $$\sigma_c' = \frac{N \times 1000}{a_t \cdot n \cdot \dfrac{d - x_n}{x_n} - a_c \cdot n \cdot \dfrac{x_n - d_c}{x_n} - \dfrac{b \cdot x_n}{2}}$$
 <p><strong>分母の各項は何か：</strong></p>
 <ul>
@@ -737,8 +754,8 @@ $$M_i = M_e$$
   <text x="240" y="100" font-size="10">圧縮縁で最大 → 中立軸でゼロ</text>
   <text x="240" y="118" font-size="10">の<strong>三角形分布</strong>です。</text>
   <text x="240" y="145" font-size="10">三角形の重心は底辺から 1/3 の</text>
-  <text x="240" y="163" font-size="10">位置 → 合力の作用位置は圧縮縁</text>
-  <text x="240" y="163" font-size="10">から <strong>xn/3</strong> の位置。</text>
+  <text x="240" y="163" font-size="10">位置 → 合力の作用位置は</text>
+  <text x="240" y="181" font-size="10">圧縮縁から <tspan font-weight="bold">xn/3</tspan> の位置。</text>
 </svg>
 <figcaption>図9: コンクリート圧縮合力の作用位置</figcaption>
 </figure>
@@ -838,7 +855,9 @@ $$\sigma_t = 15 \times 12.0 \times \frac{75 - 34.8}{34.8} = 15 \times 12.0 \time
 <tr><td>F39</td><td>$C_c$ (kN)</td><td><code>=F10*F35/1000</code></td></tr>
 <tr><td>F40</td><td>$T$ (kN)</td><td><code>=F9*F34/1000</code></td></tr>
 <tr><td>F41</td><td>$T - C_c - C$ (kN)</td><td><code>=F40-F39-F38</code></td></tr>
-<tr><td>F42</td><td>誤差 (kN)</td><td><code>=F41-F17</code></td></tr>
+<tr><td>F42</td><td>Mi (kN·m)</td><td><code>=(F38*1000*(F7-F22/3)+F39*1000*(F7-F8))/1000000</code></td></tr>
+<tr><td>F43</td><td>Me (kN·m)</td><td><code>=F32/1000000</code></td></tr>
+<tr><td>F44</td><td>モーメント誤差 (kN·m)</td><td><code>=F42-F43</code> <strong>← Goal Seekの対象</strong></td></tr>
 <tr><td>F43</td><td>$M_i$ (kN·m)</td><td><code>=(F38*1000*(F7-F22/3)<br>+F39*1000*(F7-F8))/1000000</code></td></tr>
 <tr><td>F44</td><td>$M_e$ (kN·m)</td><td><code>=F32/1000000</code></td></tr>
 <tr><td>K48</td><td>$\sigma_c'$ 判定</td><td><code>=IF(ABS(F33)&lt;=F12,"OK","NG")</code></td></tr>
